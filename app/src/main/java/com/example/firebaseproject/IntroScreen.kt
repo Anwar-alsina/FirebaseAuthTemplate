@@ -40,6 +40,9 @@ class IntroScreen : Fragment() {
             val directions = IntroScreenDirections.actionIntroScreenToRegistrationFragment()
             findNavController().navigate(directions)
         }
+        binding.tvlogin.setOnClickListener{
+            findNavController().navigate(R.id.action_introScreen_to_loginFragment)
+        }
     }
 
 }

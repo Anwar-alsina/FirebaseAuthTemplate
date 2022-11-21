@@ -10,10 +10,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.firebaseproject.data.User
 import com.example.firebaseproject.databinding.FragmentRegistrationBinding
+import com.example.firebaseproject.util.RegisterValidation
 import com.example.firebaseproject.util.Resource
 import com.example.firebaseproject.viewModel.RegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class RegistrationFragment : Fragment() {
@@ -51,7 +54,7 @@ class RegistrationFragment : Fragment() {
                 val password = etPassword.text.toString()
                 viewModel.createAccountEmailAndPassword(user, password)
             }
-        }
+    }
 
         lifecycleScope.launchWhenStarted {
             viewModel.register.collect{
@@ -68,5 +71,26 @@ class RegistrationFragment : Fragment() {
                 }
             }
         }
+        lifecycleScope.launchWhenStarted {
+            viewModel.validation.collect{validation ->
+                if (validation.email is RegisterValidation.Failed){
+                    withContext(Dispatchers.Main){
+                        binding.etEmail.apply {
+                            requestFocus()
+                            error = validation.email.message
+                        }
+                    }
+                }
+                if(validation.password is RegisterValidation.Failed){
+                    withContext(Dispatchers.Main){
+                        binding.etPassword.apply{
+                            requestFocus()
+                            error = validation.password.message
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }
